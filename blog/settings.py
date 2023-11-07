@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'newsline.apps.NewslineConfig',
-    df
+    dfe
 ]
 
 MIDDLEWARE = [

@@ -1,9 +1,15 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseNotFound
+from django.template.loader import render_to_string
 
 
 def index(request):
-    return HttpResponse('Cnhfyb')
+    # item = render_to_string('newsline/index.html')
+    return render(request, 'newsline/index.html')
+
+
+def about(request):
+    return render(request, 'newsline/about.html')
 
 
 def post(request):

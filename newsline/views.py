@@ -24,7 +24,7 @@ def index(request):
 
 
 def about(request):
-    return render(request, 'newsline/about.html')
+    return render(request, 'newsline/about.html', {"title": 'О сайте', 'menu': menu})
 
 
 def show_post(request, post_id):

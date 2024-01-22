@@ -1,20 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Лента новостей</title>
-</head>
-<body>
-<ul>
-    <li><a href="{% url 'home' %}">Главная страница</a></li>
-    {% for m in menu %}
-    {% if not forloop.last %}<li>{% else %} <li class="last">{% endif %}
-        <a href="{% url m.url_name %}">{{ m.title }}</a>
-    </li>
-    {% endfor %}
-</ul>
-<h1>{{ title }}</h1>
+{% extends 'base.html' %}
 
+{% block content %}
+<h1>{{ title }}</h1>
+{% include 'newsline/include/nav.html' %}
 <ul>
     {% for item in posts %}
     <li>
@@ -27,5 +15,5 @@
     </li>
     {% endfor %}
 </ul>
-</body>
-</html>
+{% include 'newsline/include/nav.html' %}
+{% endblock %}

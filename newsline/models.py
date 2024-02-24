@@ -29,6 +29,8 @@ class Post(models.Model):
         return self.title
 
     class Meta:
+        verbose_name = 'Посты'
+        verbose_name_plural = 'Посты'
         ordering = ['-time_create']
         indexes = [
             models.Index(fields=['-time_create'])

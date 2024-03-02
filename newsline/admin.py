@@ -1,7 +1,22 @@
 from django.contrib import admin, messages
-
-
 from .models import Post, Category
+
+
+class MarriedFilter(admin.SimpleListFilter):
+    title = 'Статус'
+    parameter_name = 'status'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('married', ' Замужем'),
+            ('single', ' Не замужем'),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'married':
+            return queryset.filter(husband__isnull=False)
+        else:
+            return queryset.filter(husband__isnull=True)
 
 
 @admin.register(Post)
@@ -12,6 +27,8 @@ class PostAdmin(admin.ModelAdmin):
     list_editable = ('is_published',)
     list_per_page = 10
     actions = ('set_published', 'set_draft')
+    search_fields = ('title', 'cat__name')
+    list_filter = (MarriedFilter, 'cat__name', 'is_published')
 
     @admin.display(description='Краткое описание', ordering='content')
     def brief_info(self, post: Post):

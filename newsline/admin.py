@@ -21,6 +21,10 @@ class MarriedFilter(admin.SimpleListFilter):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
+    fields = ('title', 'slug', 'content', 'cat', 'husband', 'tags')
+#    readonly_fields = ('slug', )
+    filter_horizontal = ('tags',)
+    prepopulated_fields = {'slug': ('title', )}
     list_display = ('title', 'content', 'time_create', 'is_published', 'cat', 'brief_info')
     list_display_links = ('title',)
     ordering = ('title',)

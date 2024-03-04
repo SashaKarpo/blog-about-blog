@@ -60,7 +60,7 @@ def contact(request):
 
 
 def addpage(request):
-    return HttpResponse('Добавить статью')
+    return render(request, 'newsline/addpage.html', {'menu': menu, 'title': 'Добавление статьи'})
 
 
 # Create your views here.

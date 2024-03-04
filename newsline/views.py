@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseNotFound
 from django.template.loader import render_to_string
 
+from newsline.forms import AddPostForm
 from newsline.models import Post, Category, TagPost
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
@@ -60,7 +61,19 @@ def contact(request):
 
 
 def addpage(request):
-    return render(request, 'newsline/addpage.html', {'menu': menu, 'title': 'Добавление статьи'})
+    if request.method == 'POST':
+        form = AddPostForm(request.POST)
+        if form.is_valid():
+            print(form.cleaned_data)
+    else:
+        form = AddPostForm()
+
+    data = {
+        'menu': menu,
+        'title': 'Добавление статьи',
+        'form': form
+    }
+    return render(request, 'newsline/addpage.html', data)
 
 
 # Create your views here.

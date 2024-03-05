@@ -1,3 +1,4 @@
+from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.urls import reverse
@@ -15,7 +16,11 @@ class Post(models.Model):
         PUBLISHED = 1, 'Опубликовано'
 
     title = models.CharField(max_length=255, verbose_name='Заголовок')
-    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='Слаг')
+    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='Слаг',
+                            validators=[
+                                MinLengthValidator(5),
+                                MaxLengthValidator(255),
+                            ])
     content = models.TextField(blank=True, verbose_name='Контент')
     time_create = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
     time_update = models.DateTimeField(auto_now=True, verbose_name='Время обновления')
@@ -28,19 +33,23 @@ class Post(models.Model):
     objects = models.Manager()
     published = PublishedManager()
 
-    def __str__(self):
-        return self.title
 
-    class Meta:
-        verbose_name = 'Посты'
-        verbose_name_plural = 'Посты'
-        ordering = ['-time_create']
-        indexes = [
-            models.Index(fields=['-time_create'])
-        ]
+def __str__(self):
+    return self.title
 
-    def get_absolute_url(self):
-        return reverse('post', kwargs={'post_slug': self.slug})
+
+class Meta:
+    verbose_name = 'Посты'
+    verbose_name_plural = 'Посты'
+    ordering = ['-time_create']
+    indexes = [
+        models.Index(fields=['-time_create'])
+    ]
+
+
+def get_absolute_url(self):
+    return reverse('post', kwargs={'post_slug': self.slug})
+
 
 #    def save(self, *args, **kwargs):
 #        self.slug = transliterate.slugify(self.title)

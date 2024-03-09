@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseNotFound
 from django.template.loader import render_to_string
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 
 from newsline.forms import AddPostForm, UploadFileForm
 from newsline.models import Post, Category, TagPost, UploadFiles
@@ -15,26 +15,29 @@ menu = [{'title': "О сайте", 'url_name': 'about'},
         ]
 
 
-def index(request):
-    posts = Post.published.all().select_related('cat')
-    data = {
-        'title': 'Главная страница',
-        'menu': menu,
-        'posts': posts,
-        'cat_selected': 0,
-    }
-    return render(request, 'newsline/index.html', context=data)
+# def index(request):
+#     posts = Post.published.all().select_related('cat')
+#     data = {
+#         'title': 'Главная страница',
+#         'menu': menu,
+#         'posts': posts,
+#         'cat_selected': 0,
+#     }
+#     return render(request, 'newsline/index.html', context=data)
 
 
-class Home(TemplateView):
+class Home(ListView):
+    # model = Post
     template_name = 'newsline/index.html'
-    posts = Post.published.all().select_related('cat')
+    context_object_name = 'posts'
     extra_context = {
         'title': 'Главная страница',
         'menu': menu,
-        'posts': posts,
         'cat_selected': 0,
     }
+
+    def get_queryset(self):
+        return Post.published.all().select_related('cat')
 
 
 def about(request):
@@ -73,6 +76,23 @@ def show_category(request, cat_slug):
     return render(request, 'newsline/index.html', context=data)
 
 
+class PostCategory(ListView):
+    template_name = 'newsline/index.html'
+    context_object_name = 'posts'
+    allow_empty = False
+
+    def get_queryset(self):
+        return Post.published.filter(cat__slug=self.kwargs['cat_slug']).select_related('cat')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cat = context['posts'][0].cat
+        context['title'] = 'Категория - ' + cat.name
+        context['menu'] = menu
+        context['cat_selected'] = cat.pk
+        return context
+
+
 def login(request):
     return HttpResponse('Войти')
 
@@ -81,27 +101,27 @@ def contact(request):
     return HttpResponse('Обратная связь')
 
 
-def addpage(request):
-    if request.method == 'POST':
-        form = AddPostForm(request.POST, request.FILES)
-        if form.is_valid():
-            # print(form.cleaned_data)
-            # try:
-            #    Post.objects.create(**form.cleaned_data)
-            #    return redirect('home')
-            # except:
-            #    form.add_error(None, 'Ошибка добавления записи')
-            form.save()
-            return redirect('home')
-    else:
-        form = AddPostForm()
-
-    data = {
-        'menu': menu,
-        'title': 'Добавление статьи',
-        'form': form
-    }
-    return render(request, 'newsline/addpage.html', data)
+# def addpage(request):
+#     if request.method == 'POST':
+#         form = AddPostForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             # print(form.cleaned_data)
+#             # try:
+#             #    Post.objects.create(**form.cleaned_data)
+#             #    return redirect('home')
+#             # except:
+#             #    form.add_error(None, 'Ошибка добавления записи')
+#             form.save()
+#             return redirect('home')
+#     else:
+#         form = AddPostForm()
+#
+#     data = {
+#         'menu': menu,
+#         'title': 'Добавление статьи',
+#         'form': form
+#     }
+#     return render(request, 'newsline/addpage.html', data)
 
 
 class AddPost(View):  # заменяю функцию представления на класс

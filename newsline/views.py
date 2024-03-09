@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseNotFound
 from django.template.loader import render_to_string
+from django.views import View
+from django.views.generic import TemplateView
 
 from newsline.forms import AddPostForm, UploadFileForm
 from newsline.models import Post, Category, TagPost, UploadFiles
@@ -24,10 +26,15 @@ def index(request):
     return render(request, 'newsline/index.html', context=data)
 
 
-# def handle_uploaded_file(f):
-#    with open(f"uploads/{f.name}", "wb+") as destination:
-#        for chunk in f.chunks():
-#            destination.write(chunk)
+class Home(TemplateView):
+    template_name = 'newsline/index.html'
+    posts = Post.published.all().select_related('cat')
+    extra_context = {
+        'title': 'Главная страница',
+        'menu': menu,
+        'posts': posts,
+        'cat_selected': 0,
+    }
 
 
 def about(request):
@@ -95,6 +102,29 @@ def addpage(request):
         'form': form
     }
     return render(request, 'newsline/addpage.html', data)
+
+
+class AddPost(View):  # заменяю функцию представления на класс
+    def get(self, request):
+        form = AddPostForm()
+        data = {
+            'menu': menu,
+            'title': 'Добавление статьи',
+            'form': form
+        }
+        return render(request, 'newsline/addpage.html', data)
+
+    def post(self, request):
+        form = AddPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+        data = {
+            'menu': menu,
+            'title': 'Добавление статьи',
+            'form': form
+        }
+        return render(request, 'newsline/addpage.html', data)
 
 
 # Create your views here.

@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseNotFound
 from django.template.loader import render_to_string
+from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView
+from django.views.generic import TemplateView, ListView, DetailView, FormView
 
 from newsline.forms import AddPostForm, UploadFileForm
 from newsline.models import Post, Category, TagPost, UploadFiles
@@ -78,6 +79,7 @@ class ShowPost(DetailView):
     def get_object(self, queryset=None):
         return get_object_or_404(Post.published, slug=self.kwargs[self.slug_url_kwarg])
 
+
 # def show_category(request, cat_slug):
 #     category = get_object_or_404(Category, slug=cat_slug)
 #     posts = Post.published.filter(cat_id=category.pk).select_related('cat')
@@ -137,29 +139,40 @@ def contact(request):
 #         'form': form
 #     }
 #     return render(request, 'newsline/addpage.html', data)
+class AddPost(FormView):
+    form_class = AddPostForm
+    template_name = 'newsline/addpage.html'
+    success_url = reverse_lazy('home')
+    extra_context = {
+        'title': 'Добавление статьи',
+        'menu': menu,
+    }
 
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
-class AddPost(View):  # заменяю функцию представления на класс
-    def get(self, request):
-        form = AddPostForm()
-        data = {
-            'menu': menu,
-            'title': 'Добавление статьи',
-            'form': form
-        }
-        return render(request, 'newsline/addpage.html', data)
-
-    def post(self, request):
-        form = AddPostForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-        data = {
-            'menu': menu,
-            'title': 'Добавление статьи',
-            'form': form
-        }
-        return render(request, 'newsline/addpage.html', data)
+# class AddPost(View):  # заменяю функцию представления на класс
+#     def get(self, request):
+#         form = AddPostForm()
+#         data = {
+#             'menu': menu,
+#             'title': 'Добавление статьи',
+#             'form': form
+#         }
+#         return render(request, 'newsline/addpage.html', data)
+#
+#     def post(self, request):
+#         form = AddPostForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('home')
+#         data = {
+#             'menu': menu,
+#             'title': 'Добавление статьи',
+#             'form': form
+#         }
+#         return render(request, 'newsline/addpage.html', data)
 
 
 # Create your views here.

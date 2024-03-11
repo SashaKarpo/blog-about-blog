@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView, FormView
+from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView, UpdateView
 
 from newsline.forms import AddPostForm, UploadFileForm
 from newsline.models import Post, Category, TagPost, UploadFiles
@@ -139,18 +139,24 @@ def contact(request):
 #         'form': form
 #     }
 #     return render(request, 'newsline/addpage.html', data)
-class AddPost(FormView):
+class AddPost(CreateView):
     form_class = AddPostForm
     template_name = 'newsline/addpage.html'
-    success_url = reverse_lazy('home')
     extra_context = {
         'title': 'Добавление статьи',
         'menu': menu,
     }
 
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
+
+class UpdatePage(UpdateView):
+    model = Post
+    fields = ['title', 'content', 'photo', 'is_published', 'cat']
+    template_name = 'newsline/addpage.html'
+    extra_context = {
+        'title': 'Редактирование статьи',
+        'menu': menu,
+    }
+    success_url = reverse_lazy('home')
 
 # class AddPost(View):  # заменяю функцию представления на класс
 #     def get(self, request):

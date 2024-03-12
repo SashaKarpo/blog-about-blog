@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseNotFound
@@ -23,15 +24,12 @@ class Home(DataMixin, ListView):
 
 
 def about(request):
-    if request.method == 'POST':
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            fp = UploadFiles(file=form.cleaned_data['file'])
-            fp.save()
-    else:
-        form = UploadFileForm()
+    contact_list = Post.published.all()
+    paginator = Paginator(contact_list, 3)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     return render(request, 'newsline/about.html',
-                  {"title": 'О сайте', 'form': form})
+                  {"title": 'О сайте', 'page_obj': page_obj})
 
 
 class ShowPost(DataMixin, DetailView):
@@ -97,7 +95,6 @@ class TagPostList(DataMixin, ListView):
         context = super().get_context_data(**kwargs)
         tag = TagPost.objects.get(slug=self.kwargs['tag_slug'])
         return self.get_mixin_context(context, title='Тег: ' + tag.tag)
-
 
     def get_queryset(self):
         return Post.published.filter(tags__slug=self.kwargs['tag_slug']).select_related('cat')

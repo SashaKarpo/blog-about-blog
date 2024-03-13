@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'newsline.apps.NewslineConfig',
+    'users.apps.UsersConfig',
     "debug_toolbar",
 ]
 

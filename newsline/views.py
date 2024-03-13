@@ -19,6 +19,7 @@ class Home(DataMixin, ListView):
     title_page = 'Главная страница'
     cat_selected = 0
 
+
     def get_queryset(self):
         return Post.published.all().select_related('cat')
 
@@ -50,6 +51,7 @@ class PostCategory(DataMixin, ListView):
     template_name = 'newsline/index.html'
     context_object_name = 'posts'
     allow_empty = False
+
 
     def get_queryset(self):
         return Post.published.filter(cat__slug=self.kwargs['cat_slug']).select_related('cat')

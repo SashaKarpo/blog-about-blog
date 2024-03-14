@@ -3,8 +3,14 @@ from django.db.models import Count
 
 import newsline.views as views
 from newsline.models import Category, TagPost
+from newsline.utils import menu
 
 register = template.Library()
+
+
+@register.simple_tag
+def get_menu():
+    return menu
 
 
 @register.inclusion_tag('newsline/list_categories.html')

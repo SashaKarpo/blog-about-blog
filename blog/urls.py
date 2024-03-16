@@ -24,10 +24,9 @@ from newsline.views import page_not_found
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('newsline.urls')),
-    path('users/', include('users.urls', namespace='users')), # namespace - пространство имен
+    path('users/', include('users.urls', namespace='users')),  # namespace - пространство имен
     path("__debug__/", include("debug_toolbar.urls")),
 ]
-
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

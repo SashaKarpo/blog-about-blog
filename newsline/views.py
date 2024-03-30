@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
@@ -21,9 +21,9 @@ class Home(DataMixin, ListView):
     title_page = 'Главная страница'
     cat_selected = 0
 
-
     def get_queryset(self):
         return Post.published.all().select_related('cat')
+
 
 @login_required
 def about(request):
@@ -54,7 +54,6 @@ class PostCategory(DataMixin, ListView):
     context_object_name = 'posts'
     allow_empty = False
 
-
     def get_queryset(self):
         return Post.published.filter(cat__slug=self.kwargs['cat_slug']).select_related('cat')
 
@@ -72,10 +71,11 @@ def contact(request):
     return HttpResponse('Обратная связь')
 
 
-class AddPost(LoginRequiredMixin, DataMixin, CreateView):
+class AddPost(PermissionRequiredMixin, LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm
     template_name = 'newsline/addpage.html'
     title_page = 'Добавление статьи'
+    permission_required = 'newsline.add_post'  # приложение.действие_таблица
 
     def form_valid(self, form):
         w = form.save(commit=False)
@@ -83,12 +83,13 @@ class AddPost(LoginRequiredMixin, DataMixin, CreateView):
         return super().form_valid(form)
 
 
-class UpdatePage(DataMixin, UpdateView):
+class UpdatePage(PermissionRequiredMixin, DataMixin, UpdateView):
     model = Post
     fields = ['title', 'content', 'photo', 'is_published', 'cat']
     template_name = 'newsline/addpage.html'
     title_page = 'Редактирование статьи'
     success_url = reverse_lazy('home')
+    permission_required = 'newsline.change_post'
 
 
 def page_not_found(request, exception):

@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
 {% block breadcrumbs %}
+{% if perms.newsline.change_post %}
+<p><a href="{% url 'edit' post.slug %}">Редактировать</a></p>
+{% endif %}
 <!-- Теги -->
 {% with post.tags.all as tags %}
 {% if tags %}
